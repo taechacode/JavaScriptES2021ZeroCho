@@ -15,6 +15,7 @@
 		const $input = document.querySelector('#input');
 		const $form = document.querySelector('#form');
 		const $logs = document.querySelector('#logs');
+		const $button = document.querySelector('button');
 
 		const numbers = [];
 		for (let n = 0; n < 9; n++) {
@@ -22,6 +23,7 @@
 		}
 
 		const answer = [];
+		answer.splice(0, answer.length);
 		for (let n = 0; n <= 3; n++) {
 			const index = Math.floor(Math.random() * numbers.length);
 			answer.push(numbers[index]);
@@ -43,7 +45,14 @@
 			return true;
 		}
 
-		$form.addEventListener('submit', (event) => {
+		function defeated() {
+			const message = document.createTextNode(`패배! 정답은 ${answer.join('')}`);
+			$logs.appendChild(message);
+			$button.disabled = true;
+		}
+
+		let out = 0;
+		const sumbitEvent = (event) => {
 			event.preventDefault(); // 기본 동작 막기
 			const value = $input.value;
 			$input.value = '';
@@ -56,11 +65,11 @@
 			// [3, 1, 4, 6] => '3146'
 			if (answer.join('') === value) {
 				$logs.textContent = '홈런!';
+				$button.disabled = true;
 				return;
 			}
 			if (tries.length >= 9) {
-				const message = document.createTextNode(`패배! 정답은 ${answer.join('')}`);
-				$logs.appendChild(message);
+				defeated();
 				return;
 			}
 
@@ -76,9 +85,20 @@
 					}
 				}
 			}
-			$logs.append(`${value}: ${strike} 스트라이크 ${ball} 볼`, document.createElement('br'));
+			if (strike === 0 && ball === 0) {
+				out++;
+				$logs.append(`${value} : ${out}아웃`, document.createElement('br'));
+			} else {
+				$logs.append(`${value} : ${strike} 스트라이크 ${ball} 볼`, document.createElement('br'));
+			}
+			if (out === 3) {
+				defeated();
+				return;
+			}
 			tries.push(value);
-		});
+		};
+
+		$form.addEventListener('submit', sumbitEvent);
 	</script>
 </body>
 
